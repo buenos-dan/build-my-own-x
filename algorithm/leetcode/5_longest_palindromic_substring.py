@@ -1,18 +1,28 @@
 # date: 2025-04-05
-# status: unfinished
+# status: accepted
 
 class Solution:
     def longestPalindrome(self, s: str) -> str:
         if len(s) < 2:
             return s
-        end_ptr = 0
-        for end_ptr in range(len(s)+1, 0, -1):
-            start_ptr = 0
-            while start_ptr < end_ptr:
-                if self.isPalindrome(s[start_ptr:end_ptr]):
-                    return s[start_ptr: end_ptr]
-                start_ptr += 1
-        return ""
+
+        already_check_pair = [[False for i in range(len(s))] for j in range(len(s))]
+        longest_len = 1
+        a, b = 0, 0
+
+        for l in range(len(s)):
+            for i in range(len(s) - l):
+                if s[i] == s[i+l]:
+                    if l == 0 or l == 1 or already_check_pair[i+1][i+l-1]:
+                        already_check_pair[i][i+l] = True
+                        if longest_len < l + 1:
+                            longest_len = l + 1
+                            a = i
+                            b = i+l
+                        continue
+                already_check_pair[i][i+l] = False
+        return s[a:b+1]
+
 
     def benchmark(self):
         cases = [
@@ -23,36 +33,13 @@ class Solution:
         ]
         for case in cases:
             yield case
-    
 
-    def isPalindrome(self, s):
-        if len(s) == 0:
-            return True
-
-        start_ptr = 0
-        end_ptr = len(s) - 1
-        while start_ptr < end_ptr:
-            if s[start_ptr] != s[end_ptr]:
-                return False
-
-            start_ptr += 1
-            end_ptr   -= 1
-
-        return True
-
-
-def test():
-    s = "djsalfjdl"
-    for length in range(len(s), 0, -1):
-        for start in range(len(s) - length + 1):
-            print(f"{start=}, {length=}, substr: {s[start: start+length]}")
 
 if __name__=="__main__":
-    test()
-    exit
-
     sol = Solution()
     for s, gt in sol.benchmark():
         print("-----------")
+        print(s)
+        print(gt)
         res = sol.longestPalindrome(s)
         assert res == gt, f"{res=}, {gt=}"
